@@ -258,7 +258,7 @@ retailer %>% ggplot(aes(x=CLUSTER_NUMBER,y=log(RETAILER_TOTAL_SALES))) +
 ```
 
 #------------------------------------------------------------------
-#NETWORK level complete, Now retailer level
+# NETWORK level complete, Now retailer level
 #------------------------------------------------------------------
 
 # Modeling - Retailer Level
