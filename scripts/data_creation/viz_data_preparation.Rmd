@@ -1,0 +1,97 @@
+---
+title: "Viz data Preparation"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, prompt=TRUE, eval=TRUE, message=F, include=T,comment=NULL,fig.width = 8, warnings = FALSE, fig.height = 8,tidy.opts=list(width.cutoff=50),tidy=TRUE,cache = TRUE)
+```
+
+```{r packageCheck, include=FALSE}
+mypacks <- c("tidyverse", "data.table", "stringr")  # what packages are needed?
+packs <- installed.packages()   # find installed package list
+install.me <- mypacks[!(mypacks %in% packs[,"Package"])]  #what needs to be installed?
+if (length(install.me) >= 1) install.packages(install.me, repos = "http://cran.us.r-project.org")   # install (if needed)
+lapply(mypacks, library, character.only=TRUE)  # load all packages
+```
+
+# This file takes in raw data orders and conducts data manipulation. It then merges with network level orders and clustering results. 
+
+# This file outputs retailer level data with all aggregated retailer info variables for visualization.
+
+## Read raw data orders
+```{r}
+orders <- fread("../../data/raw/orders_full.csv")
+network <- fread("../../data/generated/retailer_network.csv")
+clustering <- fread("../../data/generated/clustering_results.csv")
+```
+
+## Manipulation of raw orders data
+
+### get a list of unique retailers
+```{r}
+unique_retailers <- unique(orders[,list(RETAILER_NAME, RETAILER_CATEGORY, RETAILER_PRICE_RANGE)])
+```
+
+
+### Create order month
+```{r}
+orders <- orders[, ORDER_MONTH := month(orders$ORDER_DATE)]
+```
+
+### group by (create new vars first, dt command)
+```{r}
+# GENDER, IS_CROSS_SELL, month
+temp_1 <- 
+  orders[,
+        .(sum(ORDER_TOTAL), .N),
+        by = .(RETAILER_NAME, MEMBER_GENDER, ORDER_MONTH, IS_CROSS_SELL)]
+
+# MEMBER_ID, FIRST VISIT RETAILER
+temp <- unique(orders[,list(MEMBER_ID, MEMBER_FIRST_VISIT_RETAILER)])
+
+temp_fr <- temp[,
+        .N,
+        by = .(MEMBER_FIRST_VISIT_RETAILER)]
+```
+
+#### prepare new info ready for join (dplyr command)
+```{r}
+temp_1 <- temp_1 %>%
+  rename(RETAILER_TOTAL_SALES = V1,
+         RETAILER_TOTAL_ORDERS = N)
+
+temp_fr <- temp_fr %>%
+  rename(RETAILER_NUM_FIRST_VISIT_CUST_YRLY = N,
+         RETAILER_NAME = MEMBER_FIRST_VISIT_RETAILER)
+```
+
+## Join, reorder, and write out
+
+### Join with network level data and clustering results
+```{r}
+out <- temp_1 %>% 
+  left_join(temp_fr, by = "RETAILER_NAME") %>%
+  left_join(network, by = "RETAILER_NAME") %>%
+  left_join(clustering, by = "RETAILER_NAME") %>%
+  left_join(unique_retailers, by = "RETAILER_NAME") %>%
+  arrange(RETAILER_NAME, ORDER_MONTH, MEMBER_GENDER, IS_CROSS_SELL)
+```
+
+### Reorder
+```{r}
+out_final <- out %>% 
+  select(RETAILER_NAME, RETAILER_ID, RETAILER_CATEGORY, RETAILER_PRICE_RANGE, 
+         RETAILER_CLUSTER_NUMBER, RETAILER_CLUSTER_NAME,
+         RETAILER_NUM_FIRST_VISIT_CUST_YRLY,
+         ORDER_MONTH, MEMBER_GENDER, IS_CROSS_SELL,
+         RETAILER_TOTAL_SALES, RETAILER_TOTAL_ORDERS, indegreeG:effectiveG)
+```
+
+### Write out
+```{r}
+write.csv(out_final, "../../data/generated/data_for_viz.csv", row.names = FALSE)
+```

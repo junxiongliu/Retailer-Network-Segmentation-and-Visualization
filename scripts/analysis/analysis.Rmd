@@ -1,0 +1,300 @@
+---
+title: "Retailer Segmentation Analysis"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, prompt=TRUE, eval=TRUE, message=F, include=T,comment=NULL,fig.width = 8, warnings = FALSE, fig.height = 8,tidy.opts=list(width.cutoff=50),tidy=TRUE,cache = TRUE)
+```
+
+```{r packageCheck, include=FALSE}
+mypacks <- c("tidyverse","knitr","lubridate","car", "cvTools","mclust","stringr","data.table","psych","readr", "randomForest","gbm","ALEPlot","mlogit","ordinal")  # what packages are needed?
+packs <- installed.packages()   # find installed package list
+install.me <- mypacks[!(mypacks %in% packs[,"Package"])]  #what needs to be installed?
+if (length(install.me) >= 1) install.packages(install.me, repos = "http://cran.us.r-project.org")   # install (if needed)
+lapply(mypacks, library, character.only=TRUE)  # load all packages
+```
+
+- This is a simplified re-creation of a retailer segmentation analysis based on our original work during Jan to Jun 2018. The clustering and segmentation part is almost 100% re-produced, while some supervised modeling part is omitted due to simplified data.
+
+- We used a randomized data (data_for_analysis.csv) for this demo. 
+
+- Our general direction of this analysis is Network - Retailer level. The main purpose is to keep network level relatively healthy! (by healthy, we mean, relatively complete and stable)
+
+# Code for Cluster-Center plots 
+```{r}
+plot.gmcenter <- function(fit){
+  require(lattice)
+  p = nrow(fit$parameters$mean)
+  k = ncol(fit$parameters$mean)
+  plotdat = data.frame(
+    mu=as.vector(t(fit$parameters$mean)),
+    clus=factor(rep(1:k, p)),
+    var=factor( 0:(p*k-1) %/% k, labels=rownames(fit$parameters$mean))
+  )
+  print(dotplot(var~mu|clus, data=plotdat,
+    panel=function(...){
+      panel.dotplot(...)
+      panel.abline(v=0, lwd=.1)
+    },
+    layout=c(k,1),
+    xlab="Cluster Mean"
+  ))
+  invisible(plotdat)
+}
+```
+
+# Colors for plot
+```{r}
+colors_red <- c("#FBFD12","#F2CC17","#E7891C","#E05D20","#B80523")
+colors_watermelon <- c("#BB5050","#D99CA0","#B8CCA4","#9AB77D","#5E795B")
+```
+
+# Data manipulation
+## Select important variables and filter out not active
+```{r}
+retailer_full <- read.csv("../../data/generated/data_for_analysis.csv")
+```
+
+## Change categorical to numeric
+```{r}
+retailer_full$RETAILER_PRICE_RANGE <-ifelse(
+  retailer_full$RETAILER_PRICE_RANGE=="Bridge",2,
+  ifelse(retailer_full$RETAILER_PRICE_RANGE=="Luxury",3,1))
+```
+
+## Divide to network and retailer level data
+```{r}
+# get rid of 3 obs with high constraintG
+# retailer_full <- retailer_full %>% filter(constraintG < 0.2)
+
+# gets graph level data
+temp0 <- retailer_full %>% 
+  select(RETAILER_NAME,ends_with("G")) 
+
+# scale
+network1 <- data.frame(scale(temp0[,-1]))
+retailer_graph <- network1 %>% 
+  mutate(RETAILER_NAME = retailer_full$RETAILER_NAME)
+retailer_graph <- retailer_graph %>% 
+  select(ncol(retailer_graph), 1:(ncol(retailer_graph) - 1)) # reorder
+
+rm(temp0)
+```
+
+## Check correlation table
+```{r}
+cor_table <- cor(network1)
+cor_table
+```
+
+# Modeling - Network Level
+## PCA and intepretation
+### Try PCA on the original network variables
+```{r}
+fitprc1 <- prcomp(network1)
+fitprc1
+summary(fitprc1)
+plot(fitprc1)
+
+# two factors give 85.0% variance
+cumsum((fitprc1$sdev)^2)/sum((fitprc1$sdev)^2)
+
+# pick two factors
+fitprc1$rotation[,c("PC1","PC2")]
+```
+
+### Try rotating pca and leave only two factors (rotating better, explaining 100% variance)
+```{r}
+fitprc2 <- principal(network1, nfactors = 2, rotate = "promax")
+fitprc2
+
+df_twofactors_rotate <- scale(fitprc2$scores)
+```
+
+RC1: Local completeness (if an observation has high RC1, it either has a lot of neighbors and its neighbors have good connectivity. So it forms a local complete graph)
+RC2: Remoteness (if an observation has high RC2, it means that it is NOT in the center of the graph (w/ high closeness). If low RC2, it means that it is in the center of the graph)
+
+### Do market share (experiment)
+```{r}
+mkt_share_df <- retailer_full %>%
+  group_by(RETAILER_CATEGORY) %>%
+  mutate(total_category = sum(RETAILER_TOTAL_SALES)) %>%
+  ungroup() %>%
+  mutate(mkt_share = RETAILER_TOTAL_SALES/total_category) %>%
+  distinct(RETAILER_NAME,RETAILER_CATEGORY,mkt_share) %>%
+  arrange(RETAILER_CATEGORY,desc(mkt_share))
+
+# join back
+retailer <- left_join(retailer_full, mkt_share_df, id="RETAILER_NAME")
+```
+
+### Some EDA: plot PCA results with retailer level to validate the PCs
+```{r}
+retailer <- retailer %>%
+  mutate(Completeness=df_twofactors_rotate[,1], 
+         Remoteness=df_twofactors_rotate[,2])
+
+retailer_full <- retailer_full %>%
+  mutate(Completeness=df_twofactors_rotate[,1], 
+         Remoteness=df_twofactors_rotate[,2])
+
+retailer_graph <- retailer_graph %>%
+  mutate(Completeness=df_twofactors_rotate[,1], 
+         Remoteness=df_twofactors_rotate[,2])
+
+# plot sales
+retailer %>% ggplot(aes(x=Completeness,y=Remoteness)) + 
+  geom_point(aes(color=log(RETAILER_TOTAL_SALES)))
+
+# plot market_share (no clothing)
+retailer %>% filter(RETAILER_CATEGORY != "Clothing & Accessories") %>%
+  ggplot(aes(x=Completeness,y=Remoteness)) + 
+  geom_point(aes(color=mkt_share))
+
+# plot market_share (market share > or < 0.3)
+retailer %>% filter(RETAILER_CATEGORY != "Clothing & Accessories") %>%
+  ggplot(aes(x=Completeness,y=Remoteness)) + 
+  geom_point(aes(color=RETAILER_CATEGORY=="Health & Beauty")) +
+  facet_grid(~mkt_share>=0.3)
+
+# not clothing, mkt share >=0.3
+View(retailer %>% filter(RETAILER_CATEGORY != "Clothing & Accessories",
+                         mkt_share >= 0.3))
+
+# sort (desc(mkt_share) asc(Completeness))
+# high bargaining power, low competitiveness (Monopoly)
+View(retailer %>% filter(Completeness < 0) %>%
+       arrange(desc(mkt_share),Completeness))
+```
+
+### Use two pcs to divide
+```{r}
+# now clustering rotated
+set.seed(1)
+fit2 <- Mclust(df_twofactors_rotate,G=4)
+summary(fit2)
+plot.gmcenter(fit2)
+```
+
+### Plot clusters (1 is "two-tailed")
+```{r}
+retailer <- retailer %>%
+  mutate(cluster_assignment = fit2$classification)
+
+retailer %>% ggplot(aes(x=Completeness,y=Remoteness)) + 
+  geom_point(aes(color=as.factor(cluster_assignment)))
+```
+
+### Get predictions of clusters
+- divide current cluster 1 to two clusters
+- re-assign the cluster by ordered importance (bottom right most important, top left least important)
+```{r}
+retailer <- retailer %>%
+  # change the part of cluster 1 to cluster 5 if remoteness > 1, and change the small part of cluster 1 below 1 on the left to cluster 4
+  mutate(cluster_assignment = ifelse(Remoteness > 1, 5,
+                                     ifelse(Remoteness < 1 & Completeness < -0.7, 
+                                            4, cluster_assignment))) %>%
+  # reorder cluster according to importance (5 most important after change)
+  mutate(CLUSTER_NUMBER = as.factor(
+           ifelse(cluster_assignment == 1, 5,
+                  ifelse(cluster_assignment == 2, 4,
+                         ifelse(cluster_assignment == 4, 2,
+                                ifelse(cluster_assignment == 5, 1,
+                                       cluster_assignment)))))) %>%
+  # give cluster names
+  mutate(CLUSTER_NAME = as.factor(
+    ifelse(CLUSTER_NUMBER == 5, "Diamond",
+           ifelse(CLUSTER_NUMBER == 4, "Star",
+                  ifelse(CLUSTER_NUMBER == 3, "Bridge",
+                         ifelse(CLUSTER_NUMBER == 2, "Climber", "Isolated"))))
+  ))
+
+retailer <- retailer %>% select(-cluster_assignment)
+```
+
+### Plot clusters again after cleaning up original cluster 1 and reordering
+```{r}
+retailer %>% ggplot(aes(x=Completeness,y=Remoteness)) + 
+  geom_point(aes(color=CLUSTER_NUMBER)) +
+  # scale_color_manual(values = colors_watermelon) +
+  # scale_color_manual(values = colors_red) +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())
+
+# how many observations in each cluster
+retailer %>% group_by(CLUSTER_NUMBER, CLUSTER_NAME) %>% summarise(n=n())
+```
+
+### EDA plots to show (boxplots; 5 clusters):
+```{r}
+# plot log revenue
+retailer %>% ggplot(aes(x=CLUSTER_NUMBER,y=log(RETAILER_TOTAL_SALES))) + 
+  geom_boxplot() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank()) +
+  xlab("Cluster") + ylab("Log of Total Sales")
+```
+
+### The following three parts of supervised modeling (mainly using Gradient Boosted Trees & Logistic Regression) were desgined to find important variables in the original project. Due to the fact that the data has been re-created for confidentiality, a lot of information has been lost and there are not enough variables to do this analysis. So we leave it empty.
+
+#### GBM first to find important variables 
+```{r}
+
+```
+
+#### Plot GBM results
+```{r}
+
+```
+
+#### Then ordinal logistic regression
+```{r}
+
+```
+
+#------------------------------------------------------------------
+#NETWORK level complete, Now retailer level
+#------------------------------------------------------------------
+
+# Modeling - Retailer Level
+
+## Now another part: look more into cluster 3
+```{r}
+# relatively important points in network (cluster 3)
+imp_network <- retailer %>% 
+  filter(CLUSTER_NUMBER == 3)
+
+Nimp_network <- anti_join(retailer,imp_network)
+```
+
+## For those important in network, what are to notice in retailer level
+```{r}
+imp_network_high_share <- imp_network %>% filter(mkt_share>0.15)
+imp_network_low_share <- anti_join(imp_network,imp_network_high_share)
+
+# those with potential monopoly:
+imp_network_high_share %>% 
+  arrange(desc(mkt_share)) %>% 
+  select(RETAILER_NAME, RETAILER_ID, RETAILER_CATEGORY, mkt_share)
+```
+
+** This means that Retailer 6 has relatively high market share and it is also in important position (like a "bridge") in the network. Probably we can consider increase cross-selling it.
+
+#------------------------------------------------------------------
+# Finally, output clustering results that will be used in visualization
+#------------------------------------------------------------------
+
+```{r}
+out <- retailer %>%
+  select(RETAILER_NAME, RETAILER_ID, CLUSTER_NUMBER, CLUSTER_NAME) %>%
+  rename(RETAILER_CLUSTER_NUMBER = CLUSTER_NUMBER,
+         RETAILER_CLUSTER_NAME = CLUSTER_NAME)
+
+write.csv(out, "../../data/generated/clustering_results.csv", row.names = FALSE)
+```
+

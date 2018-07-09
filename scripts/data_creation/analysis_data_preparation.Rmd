@@ -1,0 +1,70 @@
+---
+title: "Analysis Data Preparation"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, prompt=TRUE, eval=TRUE, message=F, include=T,comment=NULL,fig.width = 8, warnings = FALSE, fig.height = 8,tidy.opts=list(width.cutoff=50),tidy=TRUE,cache = TRUE)
+```
+
+```{r packageCheck, include=FALSE}
+mypacks <- c("tidyverse", "stringr", "data.table")  # what packages are needed?
+packs <- installed.packages()   # find installed package list
+install.me <- mypacks[!(mypacks %in% packs[,"Package"])]  #what needs to be installed?
+if (length(install.me) >= 1) install.packages(install.me, repos = "http://cran.us.r-project.org")   # install (if needed)
+lapply(mypacks, library, character.only=TRUE)  # load all packages
+```
+
+# This file takes in raw orders data and conducts data manipulation. It then merges with network level data. 
+
+# This file outputs data ready for analysis.
+
+## Read raw orders data and network data
+```{r}
+orders <- fread("../../data/raw/orders_full.csv")
+network <- fread("../../data/generated/retailer_network.csv")
+```
+
+## Manipulation of raw data
+
+### get a list of unique retailers
+```{r}
+unique_retailers <- unique(orders[,list(RETAILER_NAME, RETAILER_ID, RETAILER_CATEGORY, RETAILER_PRICE_RANGE)])
+```
+
+### summarize the orders
+```{r}
+# Sales/orders amount
+retailer_sales <- 
+  orders[,
+        .(sum(ORDER_TOTAL), .N),
+        by = .(RETAILER_NAME)]
+```
+
+## Join, reorder, and write out
+
+### joinwith network level and original retailer information
+```{r}
+out <- retailer_sales %>% 
+  rename(RETAILER_TOTAL_SALES = V1,
+         RETAILER_TOTAL_ORDERS = N) %>%
+  left_join(unique_retailers, by = "RETAILER_NAME") %>%
+  left_join(network, by = "RETAILER_NAME")
+```
+
+### Reorder columns
+```{r}
+out_final <- out %>% select(RETAILER_NAME, RETAILER_ID, RETAILER_CATEGORY,
+                      RETAILER_PRICE_RANGE, RETAILER_TOTAL_SALES,
+                      RETAILER_TOTAL_ORDERS, indegreeG:effectiveG
+                      )
+```
+
+
+### Write out
+```{r}
+write.csv(out_final, "../../data/generated/data_for_analysis.csv", row.names = FALSE)
+```

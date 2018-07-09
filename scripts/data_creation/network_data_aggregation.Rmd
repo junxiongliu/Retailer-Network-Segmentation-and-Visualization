@@ -1,0 +1,78 @@
+---
+title: "Network Data Aggregation"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, prompt=TRUE, eval=TRUE, message=F, include=T,comment=NULL,fig.width = 8, warnings = FALSE, fig.height = 8,tidy.opts=list(width.cutoff=50),tidy=TRUE,cache = TRUE)
+```
+
+```{r packageCheck, include=FALSE}
+mypacks <- c("tidyverse", "data.table", "stringr","influenceR", "igraph")  # what packages are needed?
+packs <- installed.packages()   # find installed package list
+install.me <- mypacks[!(mypacks %in% packs[,"Package"])]  #what needs to be installed?
+if (length(install.me) >= 1) install.packages(install.me, repos = "http://cran.us.r-project.org")   # install (if needed)
+lapply(mypacks, library, character.only=TRUE)  # load all packages
+```
+
+# This file takes in raw orders data and outputs retailer level data with network (graph) related variables for both analysis and visualization.
+
+## Read data
+```{r}
+data <- fread("../../data/raw/orders_full.csv")
+```
+
+## Create network/graph variables
+### Note: Methods of creating these variables are originally from Khadija Ali Vakeel (Post Doctoral Fellow at Northwestern University, LinkedIn: https://www.linkedin.com/in/khadijavakeel/)
+
+### Sort by member id and order date
+```{r}
+data_network <- data[with(data, order(MEMBER_ID, as.Date(ORDER_DATE))), ] # sort by order time
+```
+
+### Find the previous retailer that each member visited (counting as CROSS SELL)
+```{r}
+data_network <- data_network[, lag_RETAILER_ID:= lag(RETAILER_ID), by=list(MEMBER_ID)]
+data_network <- data_network[!is.na(lag_RETAILER_ID)] # filter out NAs
+```
+
+### Start creating the graph variables
+#### Set up
+```{r}
+data_network_edges <- data_network[,c("lag_RETAILER_ID","RETAILER_ID", "ORDER_DATE","ORDER_TOTAL")]
+
+data_network_vert <- unique(data_network[,c("RETAILER_ID", "RETAILER_NAME",  
+                                "RETAILER_CATEGORY", "RETAILER_PRICE_RANGE")])
+```
+
+#### Graph variables creation
+```{r}
+g1 <- graph.data.frame(data_network_edges, directed=TRUE, 
+                       vertices = data_network_vert) 
+
+networkdata1 <- data.frame(V(g1)$RETAILER_NAME)
+
+networkdata1 <- networkdata1 %>% 
+  mutate(indegreeG = degree(g1, mode="in"), # indegree
+         outdegreeG = degree(g1, mode="out"), # outdegree
+         inclosenessG = closeness(g1, mode='in'), 
+         # bigger closeness means closesr to other points
+         outclosenessG = closeness(g1, mode='out'),
+         localclustG = transitivity(g1, type="local"),
+         # clustering coefficient; smaller localclust means more important a node 
+         constraintG = influenceR::constraint(g1),
+         # the higher the constraint, two situations: (1) no neighbors (2) neighbors have very "close relations", so smaller bargain power
+         # efficiencyG <- efficiency(g1) # --- unable to reproduce
+         # the higher effficiency, the less important a node is
+         effectiveG = ens(g1)) %>%
+  rename("RETAILER_NAME" = !!names(.[1])) # rename retailer_name column
+```
+
+## Write out
+```{r}
+write.csv(networkdata1, "../../data/generated/retailer_network.csv", row.names = FALSE)
+```
+
