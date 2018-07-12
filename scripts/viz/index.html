@@ -424,8 +424,8 @@
 	var threshold = 50000;
 	var salesRange = [0,500000000];
 	
-	CircularGraph.init('data/nodes.csv', 'data/links.csv', price_ranges, categories, salesRange, threshold);
-	RetailerGraph.show("retailer 112",["retailer 85", "retailer 96", "retailer 20"]);
+	CircularGraph.init('data/generated/nodes.csv', 'data/generated/links.csv', price_ranges, categories, salesRange, threshold);
+	RetailerGraph.show("retailer 112",["retailer 18", "retailer 20", "retailer 96"]);
 	
 	updateNetwork = function(){
 		var price_ranges = new Set();

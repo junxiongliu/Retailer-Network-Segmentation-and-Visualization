@@ -79,7 +79,7 @@ var CircularGraph = {
 
     filteredNodeData: function(nodedata, clusters, price_ranges, categories, salesRange) {
         return nodedata.filter(function(d) { 
-            return clusters.has(+d.cluster) && price_ranges.has(d.PRICE_RANGE) && categories.has(d.RETAILER_CATEGORY) && d.total_sales>=salesRange[0] && d.total_sales <= salesRange[1]; 
+            return clusters.has(+d.RETAILER_CLUSTER_NUMBER) && price_ranges.has(d.RETAILER_PRICE_RANGE) && categories.has(d.RETAILER_CATEGORY) && d.RETAILER_TOTAL_SALES>=salesRange[0] && d.RETAILER_TOTAL_SALES <= salesRange[1]; 
         });
     },
 
@@ -126,7 +126,7 @@ var CircularGraph = {
         })
 		
 		nodedata.sort(function(x, y){
-            return d3.descending(x['cluster'], y['cluster']);
+            return d3.descending(x['RETAILER_CLUSTER_NUMBER'], y['RETAILER_CLUSTER_NUMBER']);
         })
         
         var width = CircularGraphMetaData.width, height = CircularGraphMetaData.height;
@@ -146,7 +146,7 @@ var CircularGraph = {
         nodes_network = nodes_network.data(nodedata)
             .attr("id",function(d){return "node"+d.id;})
             .attr("r", 3.5)
-            .attr("fill", function(d) { return color[d.cluster]; })
+            .attr("fill", function(d) { return color[d.RETAILER_CLUSTER_NUMBER]; })
             .attr("cx",function(d,i){return width/2 + radius * Math.sin(i*unit_angle);})
             .attr("cy",function(d,i){return height/2 - radius * Math.cos(i*unit_angle);});
 		
@@ -155,7 +155,7 @@ var CircularGraph = {
             .attr("class","node")
             .attr("id",function(d){return "node"+d.id;})
             .attr("r", 3.5)
-            .attr("fill", function(d) { return color[d.cluster]; })
+            .attr("fill", function(d) { return color[d.RETAILER_CLUSTER_NUMBER]; })
             .attr("opacity",0.9)
             .attr("cx",function(d,i){return width/2 + radius * Math.sin(i*unit_angle);})
             .attr("cy",function(d,i){return height/2 - radius * Math.cos(i*unit_angle);})
@@ -232,7 +232,7 @@ var CircularGraph = {
     
     mouseouted_node: function(d) {
         var id = d3.select(this).attr("id").substring(4);
-        d3.select(this).attr("fill",function(d) { return CircularGraphMetaData.color[d.cluster]; });
+        d3.select(this).attr("fill",function(d) { return CircularGraphMetaData.color[d.RETAILER_CLUSTER_NUMBER]; });
         var links = d3.select("#networkContainer").select("svg").select(".links").selectAll("path");
         // links = links.attr("class","unchosen path");
         links.each(function(l) {
@@ -267,12 +267,12 @@ var CircularGraph = {
     mouseouted_name: function(d) {
         d3.select(this).attr("class","unchosen");
         var id = +d3.select(this).datum().id;
-        d3.select("#node"+id).attr("fill",function(l){return CircularGraphMetaData.color[l.cluster];});
+        d3.select("#node"+id).attr("fill",function(l){return CircularGraphMetaData.color[l.RETAILER_CLUSTER_NUMBER];});
         var nodename = d3.select("#networkContainer").select("svg").select(".nodenames").selectAll("text");
         nodename = nodename.attr("class","unchosen text");
         var links = d3.select("#networkContainer").select("svg").select(".links").selectAll("path");
         // links = links.attr("class","unchosen path");
-        // d3.select("#node"+id).attr("fill",function(l){return CircularGraphMetaData.color[l.cluster];});
+        // d3.select("#node"+id).attr("fill",function(l){return CircularGraphMetaData.color[l.RETAILER_CLUSTER_NUMBER];});
         links.each(function(l) {
             d3.select(this).attr("class","unchosen path");
         });
@@ -282,7 +282,7 @@ var CircularGraph = {
 		var retailer_name = d.RETAILER_NAME;
 		var competitors = $('select#select_competitors').val();
 		if(competitors.length == 0){
-			competitors = ["Saks Fifth Avenue", "Neiman Marcus", "Bloomingdale's"];
+			competitors = ["retailer 112", "retailer 96", "retailer 20"];
 		};
 		RetailerGraph.show(retailer_name,competitors);
 	}

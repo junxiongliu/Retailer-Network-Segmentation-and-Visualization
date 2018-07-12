@@ -1,0 +1,36 @@
+---
+title: "graphDataPrep"
+output: html_document
+---
+
+# DATA PREP
+```{r}
+setwd('..')
+setwd('..')
+library(tidyverse)
+library(data.table)
+library(influenceR)
+DT1 <- fread("raw/orders_full.csv")
+all_retailer<- unique(DT1 %>% select(RETAILER_ID,RETAILER_NAME,RETAILER_PRICE_RANGE,RETAILER_CATEGORY))
+RETAILER_ID<-all_retailer$RETAILER_ID
+RETAILER_LIST<-data.frame(RETAILER_ID)
+RETAILER_LIST$id<-1:nrow(RETAILER_LIST)
+DT1<-DT1 %>% select(MEMBER_ID,RETAILER_ID,ORDER_DATE,ORDER_TOTAL)
+DT1<- DT1 %>% left_join(RETAILER_LIST,by="RETAILER_ID")
+library(lubridate)
+DT1<-DT1[with(DT1, order(MEMBER_ID, as.Date(ORDER_DATE))), ]
+DT1<-DT1 %>%
+    group_by(MEMBER_ID) %>%
+    mutate(lag.id = lag(id, 1))
+DT2<-DT1[,c("lag.id","id","ORDER_DATE","ORDER_TOTAL")]
+DT2<- DT2 %>% filter(!is.na(lag.id)) %>% filter(id != lag.id)
+colnames(DT2) <- c('source','target','date','amount')
+DT2$source <- as.character(DT2$source)
+DT2$target <- as.character(DT2$target)
+DT2_new <- DT2 %>% group_by(source,target) %>% summarise(amount=sum(amount)) 
+countorder <- DT2 %>% group_by(source,target) %>% count()
+DT2_new <- inner_join(DT2_new,countorder,by=c('target','source'))
+
+write.csv(DT2_new,"generated/data_for_graph.csv",row.names = F)
+write.csv(RETAILER_LIST,"generated/retailer_id_mapping,csv",row.names=F)
+```
