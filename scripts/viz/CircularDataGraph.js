@@ -113,7 +113,9 @@ var CircularGraph = {
     },
 
     update: function(clusters, price_ranges, categories, salesRange, threshold) {
+		console.log("start update");
         var nodedata = CircularGraph.filteredNodeData(CircularGraphData.nodedata, clusters, price_ranges, categories, salesRange);
+		console.log(nodedata);
         CircularGraph.display(nodedata, CircularGraphData.linkdata,threshold);
     },
 
@@ -122,7 +124,7 @@ var CircularGraph = {
 		// $("#networkContainer .nodes").empty();
 		// $("#networkContainer .nodenames").empty();
         nodedata.sort(function(x, y){
-            return d3.descending(y['RETAILER_NAME'], x['RETAILER_NAME']);
+            return d3.descending((+y['RETAILER_ID']), (+x['RETAILER_ID']));
         })
 		
 		nodedata.sort(function(x, y){
