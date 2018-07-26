@@ -1,7 +1,7 @@
 ## Overview
 This is a demonstration of a retailer network segmentation project that we originally worked on between January 2018 and June 2018 for Chicago-based e-commerce company ShopRunner [[link](https://www.shoprunner.com/home)] as a part of Master of Science in Analytics Program at Northwestern University[[link](https://www.mccormick.northwestern.edu/analytics/)]. We analyzed large amount of customer orders data and produced valuable insights and tools for our client. The final product of the original project included several presentations, analysis reports and a web-based interactive dashboard. We recreated the main part of this project with fully randomized data and this repository will show you the process.
 
-![Dashboard Snapshot](/master/snapshot.png)
+![alt text](snapshot.PNG "Dashboard Snapshot")<br />
 
 ## Team Members
 * Xiaowei Li [[GitHub](https://github.com/weiweiweiweili)]
@@ -20,9 +20,9 @@ This is a demonstration of a retailer network segmentation project that we origi
 	* `viz` subfolder contains the files to run the visualization.
 
 ## Details
-* Data creation/generation:
+* Data creation/generation:<br/>
 	 TO BE FILLED...
-* Data Analysis:
+* Data Analysis:<br/>
 	`scripts/analysis/analysis.Rmd` file includes a simplified version of our original analysis. The main objective is to segment retailers in the network in order to inform strategies such as cross-sell. In this analysis, we used various machine learning techniques including unsupervised methods (PCA, Clusterings) as well as supervised approaches (Trees, Regressions).
-* Data Visualization:
+* Data Visualization:<br/>
 	 TO BE FILLED...
