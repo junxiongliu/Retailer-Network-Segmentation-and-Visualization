@@ -20,10 +20,14 @@ var RetailerGraph = {
 		}
 
 	    var width = 600;
-	    var height = 175;
+	    // var height = 175;
+	    var height = 233;
+	    var data_path = "/data/generated/data_for_viz.csv"
+	    // var data_path = "/../../data/generated/data_for_viz.csv"
+
 	    // line chart
 	    var svg1 = dimple.newSvg("#chartContainer", width, height);
-	    d3.csv("/../../data/generated/data_for_viz.csv", function (data) {
+	    d3.csv(data_path, function (data) {
 
 	      data = dimple.filterData(data, "RETAILER_NAME", retailer_list);
 	      
@@ -101,7 +105,7 @@ var RetailerGraph = {
 
 	    //time-series bubble chart
 	    var svg = dimple.newSvg("#chartContainer", width, height);
-	    d3.csv("/../../data/generated/data_for_viz.csv", function (data) {
+	    d3.csv(data_path, function (data) {
 	      data = dimple.filterData(data, "RETAILER_NAME", retailer_list);
 
 	      var series,
@@ -215,7 +219,7 @@ var RetailerGraph = {
 
 	    // stacked and group bar
 	    var svg3 = dimple.newSvg("#chartContainer", width, height);
-	    d3.csv("/../../data/generated/data_for_viz.csv", function (data) {
+	    d3.csv(data_path, function (data) {
 	      data = dimple.filterData(data, "RETAILER_NAME", retailer_list);
 	      var myChart3 = new dimple.chart(svg3, data);
 	      myChart3.setBounds(110, 60, width*0.5, height*0.45)
