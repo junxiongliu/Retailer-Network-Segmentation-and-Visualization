@@ -1,14 +1,8 @@
 ## Overview
-This is a demonstration of a retailer network segmentation project that we worked on between January 2018 and June 2018 for Chicago-based e-commerce company ShopRunner [[link](https://www.shoprunner.com/home)]. We analyzed customer orders data and produced valuable insights and tools for our client. The final product of the original project included several presentations, analysis reports and a web-based interactive dashboard. We re-created the main part of this project with fully randomized data and this repository will show you the process.
+This is a demonstration of a retailer network segmentation project that we worked on between January 2018 and June 2018 for Chicago-based e-commerce company ShopRunner [[link](https://www.shoprunner.com/home)]. We analyzed customer orders data and produced valuable insights and tools for our client. The final product of the original project included several presentations, analysis reports and a web-based interactive dashboard. We re-created the main part of this project with fully randomized data and this repository will show you the process.<br />
 
-<br />
-<br />
-**A snapshot of our dashboard!**<br />
+A snapshot of our dashboard:<br />
 ![alt text](snapshot.PNG "Dashboard Snapshot")
-
-<br />
-<br />
-
 
 ## Team Members
 * Xiaowei Li [[GitHub](https://github.com/weiweiweiweili)]
