@@ -21,7 +21,7 @@ var RetailerGraph = {
 
 	    var width = 600;
 	    var height = 233;
-	    var data_path = "/data/generated/data_for_viz.csv"
+	    var data_path = "/data/data_for_viz.csv";
 
 	    // line chart
 	    var svg1 = dimple.newSvg("#chartContainer", width, height);
