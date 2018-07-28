@@ -10,51 +10,12 @@ var ClusterLabels = {
             $(this).css("color", color); 
         });
 
-        // // Deprecated
-        // $('.checkbox_cluster').change(function() {
-        //     var clusters = new Set();
-        //     $('input[class="checkbox_cluster"]:checked').each(function() {
-        //         clusters.add(+this.value);
-        //     });
-        //     console.log(clusters);
-        //     CircularGraph.update(clusters, price_ranges, categories, salesRange, threshold);
-        // });
-
-        // // Deprecated
-        // $('.cluster_label').hover(
-        //     function(){ 
-        //         var color = CircularGraphMetaData.color[+$(this).attr('value')];
-        //         $(this).css("color", color); 
-        //     }, 
-        //     function(){ 
-        //         var checkbox = $(this).siblings('.checkbox_cluster').first();
-        //         if (!checkbox.is(':checked')) {
-        //             $(this).css("color", "#000000");
-        //         }
-        //     }
-        // );
-
-        // // Deprecated
-        // $('.checkbox_cluster').click(function() {
-        //     var label = $(this).siblings('.cluster_label').first();
-        //     if ($(this).is(':checked')) {
-        //         $(this).attr('checked', 'checked');
-        //         var color = CircularGraphMetaData.color[+$(this).attr('value')];
-        //         label.css("color", color); 
-        //     } else {
-        //         $(this).removeAttr('checked');
-        //         label.css("color", "#000000");
-        //     }
-        // });
         $('.cluster_label').click(function() {
             var checkbox = $(this).siblings('.checkbox_cluster').first();
             if (checkbox.is(':checked')) {
                 checkbox.removeAttr('checked');
-                // $(this).css("color", "#000000");
             } else {
                 checkbox.attr('checked', 'checked');
-                // var color = CircularGraphMetaData.color[+$(this).attr('value')];
-                // $(this).css("color", color); 
             }
         });
     }
@@ -62,8 +23,6 @@ var ClusterLabels = {
 
 var CircularGraphMetaData = {
     amountThreshold: 20000,
-    // width: 750,
-    // height: 930,
     width: 750,
     height: 680,
     radius: 200,
@@ -120,9 +79,6 @@ var CircularGraph = {
     },
 
     display: function(nodedata, linkdata, threshold) {
-		// $("#networkContainer .links").empty();
-		// $("#networkContainer .nodes").empty();
-		// $("#networkContainer .nodenames").empty();
         nodedata.sort(function(x, y){
             return d3.descending((+y['RETAILER_ID']), (+x['RETAILER_ID']));
         })
@@ -192,8 +148,6 @@ var CircularGraph = {
 		linkdata = CircularGraph.filteredLinkData(linkdata,threshold);
 		
         links_network = links_network.data(linkdata)
-            //.style("stroke", "steelblue")
-            //.attr("stroke-width",0.1)
             .attr("d",function(d){x1 = d3.select("#node"+d.target).attr("cx"); y1 = d3.select("#node"+d.target).attr("cy");
                                 x2= d3.select("#node"+d.source).attr("cx"); y2 = d3.select("#node"+d.source).attr("cy");
                                 return "M"+x1+","+y1+" Q " +width/2+","+height/2+" "+x2+","+y2;});
@@ -201,8 +155,6 @@ var CircularGraph = {
         links_network.enter()
             .append("path")
             .attr("class","unchosen path")
-            //.style("stroke", "steelblue")
-            //.attr("stroke-width",0.1)
             .attr("fill","transparent")
             .attr("d",function(d){x1 = d3.select("#node"+d.target).attr("cx"); y1 = d3.select("#node"+d.target).attr("cy");
                                 x2= d3.select("#node"+d.source).attr("cx"); y2 = d3.select("#node"+d.source).attr("cy");
@@ -215,7 +167,6 @@ var CircularGraph = {
         d3.select(this).attr("fill","red");
         var id = d3.select(this).attr("id").substring(4);
         var links = d3.select("#networkContainer").select("svg").select(".links").selectAll("path");
-        // links = links.attr("class",function(l){return (+l.source == id || +l.target == id) ? "chosen path":"unchosen path"});
         var nodename = d3.select("#networkContainer").select("svg").select(".nodenames").selectAll("text");
         nodename = nodename.attr("class",function(l){return +l.id == id ? "chosen text":"unchosen text"});
         links.each(function(l) {
@@ -236,7 +187,6 @@ var CircularGraph = {
         var id = d3.select(this).attr("id").substring(4);
         d3.select(this).attr("fill",function(d) { return CircularGraphMetaData.color[d.RETAILER_CLUSTER_NUMBER]; });
         var links = d3.select("#networkContainer").select("svg").select(".links").selectAll("path");
-        // links = links.attr("class","unchosen path");
         links.each(function(l) {
             d3.select(this).attr("class","unchosen path");
         });
@@ -250,8 +200,6 @@ var CircularGraph = {
         d3.select("#node"+id).attr("fill","red");
         var nodename = d3.select("#networkContainer").select("svg").select(".nodenames").selectAll("text");
         var links = d3.select("#networkContainer").select("svg").select(".links").selectAll("path");
-        // links = links.attr("class",function(l){return (+l.source == id || +l.target == id) ? "chosen path":"unchosen path"});
-        // d3.select("#node"+id).attr("fill","red");
         links.each(function(l) {
             if (+l.target == id) {
                 d3.select(this).attr("class", "chosen path");
@@ -273,8 +221,6 @@ var CircularGraph = {
         var nodename = d3.select("#networkContainer").select("svg").select(".nodenames").selectAll("text");
         nodename = nodename.attr("class","unchosen text");
         var links = d3.select("#networkContainer").select("svg").select(".links").selectAll("path");
-        // links = links.attr("class","unchosen path");
-        // d3.select("#node"+id).attr("fill",function(l){return CircularGraphMetaData.color[l.RETAILER_CLUSTER_NUMBER];});
         links.each(function(l) {
             d3.select(this).attr("class","unchosen path");
         });

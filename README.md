@@ -22,7 +22,7 @@ This is a demonstration of a retailer network segmentation project that we worke
 
 ## General Requirements
 Below are some general requirements to reproduce this project:
-* `Python 3.6` with common data science libraries such as `numpy`, `pandas`
+* `Python 3.6` with common data science libraries such as `numpy`, `pandas`, etc
 * `RStudio` version 1.1.419 and `R` version 3.4.3
 
 ## Details & Steps To Run

@@ -20,10 +20,8 @@ var RetailerGraph = {
 		}
 
 	    var width = 600;
-	    // var height = 175;
 	    var height = 233;
 	    var data_path = "/data/generated/data_for_viz.csv"
-	    // var data_path = "/../../data/generated/data_for_viz.csv"
 
 	    // line chart
 	    var svg1 = dimple.newSvg("#chartContainer", width, height);
@@ -283,72 +281,6 @@ var RetailerGraph = {
 	            myChart3.draw(800);
 	          });
 	    });
-
-	    // var svg4 = dimple.newSvg("#chartContainer", width, height);
-	    // d3.csv("/../../data/generated/data_for_viz.csv", function (data) {
-	    //   data = dimple.filterData(data, "RETAILER_NAME", retailer_list);
-	    //   var myChart4 = new dimple.chart(svg4, data);
-	    //   myChart4.setBounds(110, 60, width*0.5, height*0.45)
-	    //   var x = myChart4.addMeasureAxis("x", "num_visit_cust");
-	    //   x.title = "Order Amount";
-	    //   var y = myChart4.addCategoryAxis("y", "RETAILER_NAME");
-	    //   y.addOrderRule(retailer_list);
-	    //   y.title = "Retailer Name";
-	    //   myChart4.addSeries("visit_type", dimple.plot.bar);
-	    //   var myLegend = myChart4.addLegend(130, 30, width*0.5, 20, "right");
-	    //   myChart4.defaultColors = [
-	    //       // new dimple.color("#93DF7C", "#93DF7C", 1), // yellowish green
-	    //       new dimple.color("#35D8C1", "#35D8C1", 1), // green
-	    //       // new dimple.color("#70C2EA", "#70C2EA", 1), // blue
-	    //       new dimple.color("#F5D455", "#F5D455", 1), // yellow
-	    //       new dimple.color("#CE9ED7", "#CE9ED7", 1), // purple
-	    //       new dimple.color("#F58195", "#F58195", 1), // red
-	    //   ];
-	    //   svg4.append("text")
-	    //              .attr("x", width*0.4)
-	    //              .attr("y", 20)
-	    //              .style("text-anchor", "middle")
-	    //              .style("font-family", "sans-serif")
-	    //              .style("font-weight", "bold")
-	    //              .style("font-size", 15)
-	    //              .text("Order Amount by Visit Type");
-	    //   myChart4.draw();
-
-	    //   //clear current legends
-	    //   myChart4.legends = [];
-
-	    //   // Get a unique list of values to use when filtering
-	    //     var filterValues = dimple.getUniqueValues(data, "visit_type");
-	    //     // Get all the rectangles from our now orphaned legend
-	    //     myLegend.shapes.selectAll("rect")
-	    //       // Add a click event to each rectangle
-	    //       .on("click", function (e) {
-	    //         // This indicates whether the item is already visible or not
-	    //         var hide = false;
-	    //         var newFilters = [];
-	    //         // If the filters contain the clicked shape hide it
-	    //         filterValues.forEach(function (f) {
-	    //           if (f === e.aggField.slice(-1)[0]) {
-	    //             hide = true;
-	    //           } else {
-	    //             newFilters.push(f);
-	    //           }
-	    //         });
-	    //         // Hide the shape or show it
-	    //         if (hide) {
-	    //           d3.select(this).style("opacity", 0.2);
-	    //         } else {
-	    //           newFilters.push(e.aggField.slice(-1)[0]);
-	    //           d3.select(this).style("opacity", 0.8);
-	    //         }
-	    //         // Update the filters
-	    //         filterValues = newFilters;
-	    //         // Filter the data
-	    //         myChart4.data = dimple.filterData(data, "visit_type", filterValues);
-	    //         // Passing a duration parameter makes the chart animate. Without it there is no transition
-	    //         myChart4.draw(800);
-	    //       });
-	    // });
 	}
 	
 }
