@@ -33,7 +33,7 @@ Below are some general requirements to reproduce this project:
 	* `scripts/analysis/analysis.Rmd` file includes a simplified version of our original analysis. 
 	* The main objective is to segment retailers in the network in order to inform strategies such as cross-sell. In this analysis, we used various machine learning techniques including unsupervised methods (PCA, Clusterings) as well as supervised approaches (Trees, Regressions).
 * Data Visualization:<br/>
-	* Copy all data files under `data/generated` folder to 'scripts/viz/data'. You can use one command to do this. Go into `scripts/viz` folder first. Then for Windows cmd users, type `Xcopy ..\..\data\generated data\` and for Linux cmd, type `cp -r ../../data/generated/. data/`.
+	* Copy all data files under `data/generated` folder to `scripts/viz/data`. You can use one command to do this. Go into `scripts/viz` folder first, then type `Xcopy ..\..\data\generated data\` in windows cmd or `cp -r ../../data/generated/. data/` in Linux cmd.
 	* Stay in `scripts/viz` folder. Type `python -m http.server` in consle/cmd. Afterwards open up your browser and type `localhost: 8000` (or whatever default port you set up) and you should be able to see the visualization exactly like the screenshot above.
 	* In general, the main objective of the visualization is to provide a comprehensive approach to visualize this unique network/orders data. The dashboard is divided into three parts (`Retailer KPI`, `Network Structure`, and `Filters`):
 		* `Retailer KPI` is on the left part of the page. It contains three graphs related to focal retailer of your choice and it presents key information such as sales, orders, and cross-sell about the focal retailer against its competitiors.
