@@ -28,7 +28,7 @@ Below are some general requirements to reproduce this project:
 ## Details & Steps To Run
 * Data creation/generation:<br/>
 	* The data can be downloaded from this [[link](https://drive.google.com/open?id=1c3cOjBxsaVJHyBydR_NjhmzaAuLE9Qvw)]. Plase un-zip it and copy it to the data folder in the root directory **and** copy the `generated` folder to `scripts/viz/data/generated` directory in order to run the visualization. 
-	* To recreate the generated data from raw data, please run the following scripts in `scripts/data_creation` folder **in order**: `network_data_aggregation.Rmd`, `analysis_data_preparation.Rmd`, `viz_data_preparation_general.Rmd`, `viz_data_link_establish.Rmd`, and `viz_data_preparation_graph.py`
+	* To recreate the generated data from raw data, please run the following scripts in `scripts/data_creation` folder **in order**: `network_data_aggregation.Rmd`, `analysis_data_preparation.Rmd`, `viz_data_preparation_general.Rmd`, `viz_data_link_establish.Rmd`, and `viz_data_preparation_graph.py`.
 * Data Analysis:<br/>
 	* `scripts/analysis/analysis.Rmd` file includes a simplified version of our original analysis. 
 	* The main objective is to segment retailers in the network in order to inform strategies such as cross-sell. In this analysis, we used various machine learning techniques including unsupervised methods (PCA, Clusterings) as well as supervised approaches (Trees, Regressions).
@@ -37,4 +37,5 @@ Below are some general requirements to reproduce this project:
 	* In general, the main objective of the visualization is to provide a comprehensive approach to visualize this unique network/orders data. The dashboard is divided into three parts (`Retailer KPI`, `Network Structure`, and `Filters`):
 		* `Retailer KPI` is on the left part of the page. It contains three graphs related to focal retailer of your choice and it presents key information such as sales, orders, and cross-sell about the focal retailer against its competitiors.
 		* `Network Structure` is on the middle of the page. It contains the structure of the full retailer network where nodes are retailers and edges represent amount of cross-sell between retailers (or a.k.a "customer flow"). The graph is colored by our **clustering results** from the analysis part. 
-		* `Filters` is on the right and this section controls the graphs of the other two sections. "Network Filter" controls the `Network Structure` section and "Retailer Filter" controls the `Retailer KPI` section
+		* `Filters` is on the right and this section controls the graphs of the other two sections. "Network Filter" controls the `Network Structure` section and "Retailer Filter" controls the `Retailer KPI` section.
+			* Note: For `Category` and `Competitiors` boxes, you can press `Ctrl` (for Windows users) to multi-select.
