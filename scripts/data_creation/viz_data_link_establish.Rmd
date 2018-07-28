@@ -10,6 +10,7 @@ setwd('..')
 library(tidyverse)
 library(data.table)
 library(influenceR)
+library(bit64)
 DT1 <- fread("raw/orders_full.csv")
 all_retailer<- unique(DT1 %>% select(RETAILER_ID,RETAILER_NAME,RETAILER_PRICE_RANGE,RETAILER_CATEGORY))
 RETAILER_ID<-all_retailer$RETAILER_ID

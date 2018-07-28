@@ -11,7 +11,7 @@ knitr::opts_chunk$set(collapse=TRUE, prompt=TRUE, eval=TRUE, message=F, include=
 ```
 
 ```{r packageCheck, include=FALSE}
-mypacks <- c("tidyverse", "data.table", "stringr")  # what packages are needed?
+mypacks <- c("tidyverse", "data.table", "stringr", "bit64")  # what packages are needed?
 packs <- installed.packages()   # find installed package list
 install.me <- mypacks[!(mypacks %in% packs[,"Package"])]  #what needs to be installed?
 if (length(install.me) >= 1) install.packages(install.me, repos = "http://cran.us.r-project.org")   # install (if needed)
