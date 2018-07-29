@@ -1,17 +1,18 @@
 ## Overview
 This is a demonstration of a retailer network segmentation project that we worked on between January 2018 and June 2018 for a e-commerce company. We analyzed customer orders data and produced valuable insights and tools for our client. The final product of the original project included several presentations, analysis reports and a web-based interactive dashboard. We recreated the main part of this project with completely randomized and re-generated data. This repository will show you our work.<br />
 
+## App
+**Our dashboard is hosted [[here](http://ec2-54-172-116-217.compute-1.amazonaws.com:8000/)]**.<br />
+
+**Snapshot:** <br />
+![alt text](snapshot.PNG "Dashboard Snapshot")
+
 ## Team Members
 * Xiaowei Li [[GitHub](https://github.com/weiweiweiweili)]
 * Junxiong Liu [[GitHub](https://github.com/junxiongliu)]
 * Hao Xiao [[GitHub](https://github.com/HaoXiao2018)]
 * Wenjing Yang [[GitHub](https://github.com/wyo9057)]
 * Tong Yin [[GitHub](https://github.com/Tong-Yin)]
-
-## App
-Our dashboard is hosted [[here](http://ec2-54-172-116-217.compute-1.amazonaws.com:8000/)].<br />
-**Snapshot:** <br />
-![alt text](snapshot.PNG "Dashboard Snapshot")
 
 ## Important Files
 * `data` folder aims to contain all the data. We recreated the raw data by fully adjusting sensitive information via randomization, masking, or hashing. The data can be downloaded from this [[link](https://drive.google.com/open?id=1c3cOjBxsaVJHyBydR_NjhmzaAuLE9Qvw)].
