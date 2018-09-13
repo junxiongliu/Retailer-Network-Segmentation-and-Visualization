@@ -2,7 +2,7 @@
 This is a demonstration of a retailer network segmentation project that we worked on between January 2018 and June 2018 for a e-commerce company. We analyzed customer orders data and produced valuable insights and tools for our client. We recreated the main part of this project with completely regenerated data. This repository will show you our work.<br />
 
 ## App
-**Our dashboard is hosted [[here](http://ec2-54-172-116-217.compute-1.amazonaws.com:8000/)]**. Please **open this via a PC** to ensure best viewing experience (i.e. 13-14 inch laptops work great). In addition, we recorded a 10-minute video to show you how to use this dashboard and feel free to check it out [[here](https://drive.google.com/open?id=1pZ1auhAHIisZUZSc3qX44Varwa-Lxw7b)]. <br />
+**Our dashboard is hosted [[here](http://ec2-54-172-116-217.compute-1.amazonaws.com:8000/)]**. Please **open this via a PC** to ensure best viewing experience (i.e. 13-14 inch laptops work great). Also, we recorded a 10-minute video to show you how to use this dashboard and **feel free to check it out [[here](https://drive.google.com/open?id=1pZ1auhAHIisZUZSc3qX44Varwa-Lxw7b)]**. <br />
 
 **Dashboard Snapshot:** <br />
 ![alt text](snapshot.PNG "Dashboard Snapshot")
